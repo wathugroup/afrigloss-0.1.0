@@ -25,11 +25,15 @@
  *  });
  * ```
  */
-import React from 'react';
+
 import { createRoot } from 'react-dom/client';
+import './styles.css';
+
 const App = () => {
     return (
-        <h1>Hello from React</h1>
+        <div className="p-8 bg-gray-100 min-h-screen">
+            <h1 className="text-3xl font-bold text-blue-600">Hello from React with Tailwind CSS!</h1>
+        </div>
     );
 };
 
