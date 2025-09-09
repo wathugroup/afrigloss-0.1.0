@@ -28,11 +28,12 @@
 
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import ProjectList from './components/ProjectList';
 
 const App = () => {
     return (
-        <div className="p-8 bg-gray-100 min-h-screen">
-            <h1 className="text-3xl font-bold text-blue-600">Hello from React with Tailwind CSS!</h1>
+        <div className="min-h-screen">
+            <ProjectList />
         </div>
     );
 };
