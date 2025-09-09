@@ -13,10 +13,14 @@ if (require('electron-squirrel-startup')) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 800,
+    width: 1200,
+    titleBarStyle: 'hiddenInset', // This allows custom titlebar content on macOS
+    trafficLightPosition: { x: 13, y: 12 }, // Default position for window controls
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: false,
+      contextIsolation: true,
     },
   });
 
