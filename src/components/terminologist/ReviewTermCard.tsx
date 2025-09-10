@@ -9,15 +9,34 @@ import { FeatherEdit2 } from "@subframe/core";
 import { FeatherTrendingUp } from "@subframe/core";
 import { FeatherX } from "@subframe/core";
 
-function ReviewTermCard() {
+interface Term {
+  id: string;
+  englishTerm: string;
+  translation: string;
+  language: string;
+  definition?: string;
+  submittedBy: string;
+  submitterId: string;
+  avatar: string;
+  score: number;
+  reviewerCount: number;
+}
+
+interface ReviewTermCardProps {
+  term: Term;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function ReviewTermCard({ term, isOpen, onClose }: ReviewTermCardProps) {
   return (
-    <DialogLayout open={false} onOpenChange={() => {}}>
+    <DialogLayout open={isOpen} onOpenChange={onClose}>
       <div className="flex h-full w-192 flex-col items-start gap-4 bg-default-background">
         <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-6 rounded-md border border-solid border-neutral-border bg-default-background px-6 py-6">
           <div className="flex w-full items-start justify-between">
             <div className="flex flex-col items-start gap-1">
               <span className="text-heading-2 font-heading-2 text-default-font">
-                Agriculture
+                {term.englishTerm}
               </span>
               <span className="text-body font-body text-subtext-color">
                 English Term
@@ -33,10 +52,10 @@ function ReviewTermCard() {
           <div className="flex w-full flex-col items-start gap-4 rounded-md bg-neutral-50 px-6 py-6">
             <div className="flex w-full flex-col items-start gap-1">
               <span className="text-body-bold font-body-bold text-default-font">
-                Vhulimi
+                {term.translation}
               </span>
               <span className="text-body font-body text-subtext-color">
-                Tshivenda Translation
+                {term.language}
               </span>
             </div>
             <div className="flex h-px w-full flex-none flex-col items-center gap-2 bg-neutral-200" />
@@ -45,9 +64,7 @@ function ReviewTermCard() {
                 Definition
               </span>
               <span className="text-body font-body text-default-font">
-                The science or practice of farming, including cultivation of the
-                soil for the growing of crops and the rearing of animals to
-                provide food, wool, and other products.
+                {term.definition || "No definition provided."}
               </span>
             </div>
           </div>
@@ -57,7 +74,7 @@ function ReviewTermCard() {
                 Submitted by
               </span>
               <span className="text-body-bold font-body-bold text-default-font">
-                #A392E4
+                {term.submitterId}
               </span>
               <Badge>2.5x Multiplier</Badge>
             </div>

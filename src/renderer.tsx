@@ -82,89 +82,51 @@ const App = () => {
         switch (currentComponent) {
             case 'glossary':
                 return (
-                    <div className="p-6">
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Glossary Management</h2>
-                            <p className="text-gray-600">Search and manage glossary terms</p>
-                        </div>
+                    <div className="h-full w-full bg-neutral-100">
                         <SearchHeader />
                     </div>
                 );
             case 'pansalb':
                 return (
-                    <div className="p-6">
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">PanSALB Verification</h2>
-                            <p className="text-gray-600">Quality assurance and verification tools</p>
-                        </div>
+                    <div className="h-full w-full bg-neutral-100">
                         <div className="flex gap-6">
                             <div className="flex-1">
                                 <VerifierPanel />
                             </div>
-                            <div className="w-80">
-                                <VerificationCard />
-                            </div>
                         </div>
                     </div>
                 );
-            case 'terminologist':
+            case 'terms':
                 return (
-                    <div className="p-6">
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Terminologist Dashboard</h2>
-                            <p className="text-gray-600">Term review and management</p>
-                        </div>
+                    <div className="h-full w-full bg-neutral-100">
                         <div className="flex gap-6">
                             <div className="flex-1">
                                 <TerminologistDashboard />
-                            </div>
-                            <div className="w-80">
-                                <ReviewTermCard />
                             </div>
                         </div>
                     </div>
                 );
             case 'translators':
                 return (
-                    <div className="p-6">
-                        <div className="mb-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                {translationView !== 'ProjectList' && (
-                                    <button
-                                        onClick={translationView === 'TranslationEditor' ? handleBackToWorkspace : handleBackToProjects}
-                                        className="px-3 py-1 rounded text-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                    >
-                                        ← Back
-                                    </button>
-                                )}
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    {translationView === 'ProjectList' && 'Translation Projects'}
-                                    {translationView === 'TranslatorWorkspace' && `${selectedProject?.name || 'Project'} - Documents`}
-                                    {translationView === 'TranslationEditor' && `${selectedDocument?.name || 'Document'} - Editor`}
-                                </h2>
-                            </div>
-                            <p className="text-gray-600">
-                                {translationView === 'ProjectList' && 'Select a project to start translating'}
-                                {translationView === 'TranslatorWorkspace' && 'Choose a document to translate'}
-                                {translationView === 'TranslationEditor' && 'Translate the selected document'}
-                            </p>
-                        </div>
+                    <div className="h-full w-full bg-neutral-100">
                         {translationView === 'ProjectList' && <ProjectList onProjectSelect={handleProjectSelect} />}
-                        {translationView === 'TranslatorWorkspace' && <TranslatorWorkspace onDocumentSelect={handleDocumentSelect} />}
-                        {translationView === 'TranslationEditor' && <TranslationEditor />}
+                        {translationView === 'TranslatorWorkspace' && <TranslatorWorkspace onDocumentSelect={handleDocumentSelect} onBack={handleBackToProjects} />}
+                        {translationView === 'TranslationEditor' && <TranslationEditor onBack={handleBackToWorkspace} />}
                     </div>
                 );
             default:
                 return (
-                    <div className="p-6">
+                    <div className="h-full w-full bg-neutral-100">
                         <ProjectList />
                     </div>
                 );
         }
     };
 
+    const shouldHideNavigation = currentComponent === 'translators' && (translationView === 'TranslatorWorkspace' || translationView === 'TranslationEditor');
+
     return (
-        <TopBar onNavigate={handleNavigate} currentComponent={currentComponent}>
+        <TopBar onNavigate={handleNavigate} currentComponent={currentComponent} hideNavigation={shouldHideNavigation}>
             {renderComponent()}
         </TopBar>
     );

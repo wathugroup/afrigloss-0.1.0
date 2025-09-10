@@ -9,9 +9,25 @@ import { FeatherCheck } from "@subframe/core";
 import { FeatherCheckCircle } from "@subframe/core";
 import { FeatherRotateCcw } from "@subframe/core";
 
-function VerificationCard() {
+interface VerificationTerm {
+  id: string;
+  term: string;
+  englishTerm: string;
+  definition: string;
+  score: number;
+  reviewCount: number;
+  variant: "success" | "warning" | "error";
+}
+
+interface VerificationCardProps {
+  term: VerificationTerm;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function VerificationCard({ term, isOpen, onClose }: VerificationCardProps) {
   return (
-    <DialogLayout open={false} onOpenChange={() => {}}>
+    <DialogLayout open={isOpen} onOpenChange={onClose}>
       <div className="flex w-192 flex-col items-start gap-6 rounded-md border border-solid border-neutral-border bg-default-background px-6 py-6 shadow-sm">
         <div className="flex w-full flex-col items-center gap-6">
           <IconWithBackground
@@ -35,7 +51,7 @@ function VerificationCard() {
               Term
             </span>
             <span className="text-heading-3 font-heading-3 text-default-font">
-              Vhulimi (Agriculture)
+              {term.term}
             </span>
           </div>
           <div className="flex w-full flex-col items-start gap-2">
@@ -43,9 +59,7 @@ function VerificationCard() {
               Definition
             </span>
             <span className="text-body font-body text-default-font">
-              The science or practice of farming, including cultivation of the
-              soil for the growing of crops and the rearing of animals to
-              provide food, wool, and other products.
+              {term.definition}
             </span>
           </div>
           <div className="flex w-full flex-col items-start gap-2">
@@ -53,9 +67,9 @@ function VerificationCard() {
               Peer Review Score
             </span>
             <div className="flex items-center gap-2">
-              <Badge variant="success">4.8/5.0</Badge>
+              <Badge variant={term.variant}>{term.score}/5.0</Badge>
               <span className="text-body font-body text-subtext-color">
-                Based on 12 reviews
+                Based on {term.reviewCount} reviews
               </span>
             </div>
           </div>

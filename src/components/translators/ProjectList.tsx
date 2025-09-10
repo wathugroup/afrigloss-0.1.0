@@ -13,17 +13,11 @@ interface ProjectListProps {
 
 function ProjectList({ onProjectSelect }: ProjectListProps) {
   return (
-    <div className="container max-w-none flex h-full w-full flex-col items-start gap-4 bg-default-background py-12">
-      <div className="flex w-full items-center gap-2 px-6">
-        <span className="grow shrink-0 basis-0 text-heading-2 font-heading-2 text-default-font">
+    <div className="max-w-none flex h-full w-full flex-col items-start gap-4 pt-6">
+      <div className="flex w-full items-center justify-between px-6">
+        <span className="text-heading-2 font-heading-2 text-default-font">
           Projects
         </span>
-        <Button
-          icon={<FeatherPlus />}
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-        >
-          New Project
-        </Button>
       </div>
       <div className="flex w-full flex-col items-start gap-2 px-6">
         <div 

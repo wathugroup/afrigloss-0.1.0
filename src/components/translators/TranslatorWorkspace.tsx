@@ -1,173 +1,266 @@
 "use client";
 
-import React from "react";
-import { Avatar } from "@/ui/components/Avatar";
-import { Badge } from "@/ui/components/Badge";
-import { Button } from "@/ui/components/Button";
-import { DropdownMenu } from "@/ui/components/DropdownMenu";
-import { FilterBadge } from "@/ui/components/FilterBadge";
-import { IconButton } from "@/ui/components/IconButton";
-import { Progress } from "@/ui/components/Progress";
-import { Table } from "@/ui/components/Table";
-import { TextField } from "@/ui/components/TextField";
-import { FeatherArrowDownUp } from "@subframe/core";
-import { FeatherArrowRight } from "@subframe/core";
-import { FeatherCheckCircle } from "@subframe/core";
-import { FeatherChevronDown } from "@subframe/core";
-import { FeatherClock } from "@subframe/core";
-import { FeatherEdit2 } from "@subframe/core";
-import { FeatherFileText } from "@subframe/core";
-import { FeatherGlobe } from "@subframe/core";
-import { FeatherListFilter } from "@subframe/core";
-import { FeatherLoader } from "@subframe/core";
-import { FeatherMoreHorizontal } from "@subframe/core";
-import { FeatherPlus } from "@subframe/core";
-import { FeatherSearch } from "@subframe/core";
-import { FeatherTrash } from "@subframe/core";
-import { FeatherUpload } from "@subframe/core";
-import { FeatherUser } from "@subframe/core";
+import React, { useState } from "react";
 import * as SubframeCore from "@subframe/core";
+import { DropdownMenu } from "@/ui/components/DropdownMenu";
+import { Button } from "@/ui/components/Button";
+import { Badge } from "@/ui/components/Badge";
+import { FilterBadge } from "@/ui/components/FilterBadge";
+import { Table } from "@/ui/components/Table";
+import { Avatar } from "@/ui/components/Avatar";
+import { IconButton } from "@/ui/components/IconButton";
+import { Calendar } from "@/ui/components/Calendar";
+import {
+  FeatherArrowLeft,
+  FeatherUpload,
+  FeatherChevronDown,
+  FeatherClock,
+  FeatherLoader,
+  FeatherCheckCircle,
+  FeatherUser,
+  FeatherCalendar,
+  FeatherArrowDownUp,
+  FeatherType,
+  FeatherArrowUp,
+  FeatherArrowDown,
+  FeatherMoreHorizontal,
+  FeatherEdit,
+  FeatherTrash2,
+  FeatherArrowRight,
+  FeatherEdit2,
+  FeatherTrash,
+} from "@subframe/core";
+import { Progress } from "@/ui/components/Progress";
 
 interface TranslatorWorkspaceProps {
   onDocumentSelect?: (document: any) => void;
+  onBack?: () => void;
 }
 
-function TranslatorWorkspace({ onDocumentSelect }: TranslatorWorkspaceProps) {
+function TranslatorWorkspace({ onDocumentSelect, onBack }: TranslatorWorkspaceProps) {
+  const [selectedDateRange, setSelectedDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({ from: undefined, to: undefined });
   return (
-    <div className="container max-w-none flex h-full w-full flex-col items-start bg-default-background">
+    <div className="max-w-none flex w-full flex-col items-start">
       <div className="flex w-full flex-wrap items-center gap-2 px-6 pt-6 pb-2">
         <div className="flex grow shrink-0 basis-0 items-center gap-2">
-          <FeatherFileText className="text-heading-2 font-heading-2 text-default-font" />
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="text-sm text-gray-600 hover:text-gray-900 mr-2"
+            >
+              ← Back
+            </button>
+          )}
           <span className="text-heading-2 font-heading-2 text-default-font">
             Translation Documents
           </span>
           <Badge variant="success">Active</Badge>
         </div>
         <Button
-          variant="neutral-primary"
+          variant="neutral-secondary"
           icon={<FeatherUpload />}
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+          onClick={async (event: React.MouseEvent<HTMLButtonElement>) => {
+            // Use Electron's dialog API to open file picker
+            if (window.electronAPI) {
+              try {
+                const result = await window.electronAPI.showOpenDialog({
+                  title: 'Select Document to Import',
+                  filters: [
+                    { name: 'Documents', extensions: ['pdf', 'docx', 'txt', 'md'] },
+                    { name: 'All Files', extensions: ['*'] }
+                  ],
+                  properties: ['openFile']
+                });
+                
+                if (!result.canceled && result.filePaths.length > 0) {
+                  const filePath = result.filePaths[0];
+                  console.log('Selected file:', filePath);
+                  // TODO: Handle file import logic here
+                }
+              } catch (error) {
+                console.error('Error opening file dialog:', error);
+              }
+            } else {
+              console.warn('Electron API not available');
+            }
+          }}
         >
           Import Document
         </Button>
-        <Button
-          icon={<FeatherPlus />}
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-        >
-          New Document
-        </Button>
-      </div>
-      <div className="flex w-full flex-wrap items-center gap-6 border-b border-solid border-neutral-border px-6 pt-2 pb-4">
-        <div className="flex grow shrink-0 basis-0 items-center gap-6">
-          <TextField
-            variant="filled"
-            label=""
-            helpText=""
-            icon={<FeatherSearch />}
-          >
-            <TextField.Input
-              placeholder="Search documents"
-              value=""
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}
-            />
-          </TextField>
-        </div>
-        <div className="flex flex-wrap items-start gap-1">
-          <SubframeCore.DropdownMenu.Root>
-            <SubframeCore.DropdownMenu.Trigger asChild={true}>
-              <Button
-                variant="neutral-tertiary"
-                iconRight={<FeatherChevronDown />}
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-              >
-                Status
-              </Button>
-            </SubframeCore.DropdownMenu.Trigger>
-            <SubframeCore.DropdownMenu.Portal>
-              <SubframeCore.DropdownMenu.Content
-                side="bottom"
-                align="start"
-                sideOffset={4}
-                asChild={true}
-              >
-                <DropdownMenu>
-                  <DropdownMenu.DropdownItem icon={<FeatherClock />}>
-                    Pending
-                  </DropdownMenu.DropdownItem>
-                  <DropdownMenu.DropdownItem icon={<FeatherLoader />}>
-                    In Progress
-                  </DropdownMenu.DropdownItem>
-                  <DropdownMenu.DropdownItem icon={<FeatherCheckCircle />}>
-                    Completed
-                  </DropdownMenu.DropdownItem>
-                </DropdownMenu>
-              </SubframeCore.DropdownMenu.Content>
-            </SubframeCore.DropdownMenu.Portal>
-          </SubframeCore.DropdownMenu.Root>
-          <Button
-            variant="neutral-tertiary"
-            icon={<FeatherListFilter />}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-          >
-            Filter
-          </Button>
-          <Button
-            variant="neutral-tertiary"
-            icon={<FeatherArrowDownUp />}
-            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-          >
-            Sort
-          </Button>
-          <SubframeCore.DropdownMenu.Root>
-            <SubframeCore.DropdownMenu.Trigger asChild={true}>
-              <Button
-                variant="neutral-tertiary"
-                iconRight={<FeatherChevronDown />}
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-              >
-                Language
-              </Button>
-            </SubframeCore.DropdownMenu.Trigger>
-            <SubframeCore.DropdownMenu.Portal>
-              <SubframeCore.DropdownMenu.Content
-                side="bottom"
-                align="start"
-                sideOffset={4}
-                asChild={true}
-              >
-                <DropdownMenu>
-                  <DropdownMenu.DropdownItem icon={<FeatherGlobe />}>
-                    All Languages
-                  </DropdownMenu.DropdownItem>
-                  <DropdownMenu.DropdownDivider />
-                  <DropdownMenu.DropdownItem icon={null}>
-                    Tshivenda
-                  </DropdownMenu.DropdownItem>
-                  <DropdownMenu.DropdownItem icon={null}>
-                    Xitsonga
-                  </DropdownMenu.DropdownItem>
-                  <DropdownMenu.DropdownItem icon={null}>
-                    isiZulu
-                  </DropdownMenu.DropdownItem>
-                </DropdownMenu>
-              </SubframeCore.DropdownMenu.Content>
-            </SubframeCore.DropdownMenu.Portal>
-          </SubframeCore.DropdownMenu.Root>
-        </div>
       </div>
       <div className="flex w-full flex-col items-start gap-2 px-6 py-4">
         <span className="text-body-bold font-body-bold text-subtext-color">
-          Filter by language
+          Filters
         </span>
-        <div className="flex w-full flex-wrap items-center gap-2">
-          <FilterBadge label="English" count="31" selected={true} />
-          <FilterBadge label="Tshivenda" count="28" selected={true} />
-          <FilterBadge label="Spanish" count="17" />
-          <FilterBadge label="French" count="12" />
-          <FilterBadge label="German" count="9" />
+        <div className="flex w-full items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <FilterBadge label="English" count="6" selected={true} />
+            <FilterBadge label="Tshivenda" count="3" selected={true} />
+            <FilterBadge label="isiZulu" count="2" />
+            <FilterBadge label="Afrikaans" count="1" />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <SubframeCore.DropdownMenu.Root>
+              <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                <Button
+                  variant="neutral-tertiary"
+                  iconRight={<FeatherChevronDown />}
+                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                >
+                  Status
+                </Button>
+              </SubframeCore.DropdownMenu.Trigger>
+              <SubframeCore.DropdownMenu.Portal>
+                <SubframeCore.DropdownMenu.Content
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}
+                  asChild={true}
+                >
+                  <DropdownMenu>
+                    <DropdownMenu.DropdownItem icon={<FeatherClock />}>
+                      Pending
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<FeatherLoader />}>
+                      In Progress
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<FeatherCheckCircle />}>
+                      Completed
+                    </DropdownMenu.DropdownItem>
+                  </DropdownMenu>
+                </SubframeCore.DropdownMenu.Content>
+              </SubframeCore.DropdownMenu.Portal>
+            </SubframeCore.DropdownMenu.Root>
+            <SubframeCore.DropdownMenu.Root>
+              <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                <Button
+                  variant="neutral-tertiary"
+                  iconRight={<FeatherChevronDown />}
+                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                >
+                  Assignee
+                </Button>
+              </SubframeCore.DropdownMenu.Trigger>
+              <SubframeCore.DropdownMenu.Portal>
+                <SubframeCore.DropdownMenu.Content
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}
+                  asChild={true}
+                >
+                  <DropdownMenu>
+                    <DropdownMenu.DropdownItem icon={<FeatherUser />}>
+                      All Assignees
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownDivider />
+                    <DropdownMenu.DropdownItem icon={<Avatar size="small">JD</Avatar>}>
+                      John Doe
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<Avatar size="small">AM</Avatar>}>
+                      Alice Miller
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<Avatar size="small">RK</Avatar>}>
+                      Robert Kim
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<Avatar size="small">TM</Avatar>}>
+                      Tom Martin
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<Avatar size="small">SK</Avatar>}>
+                      Sarah Kim
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<Avatar size="small">LN</Avatar>}>
+                      Lisa Nelson
+                    </DropdownMenu.DropdownItem>
+                  </DropdownMenu>
+                </SubframeCore.DropdownMenu.Content>
+              </SubframeCore.DropdownMenu.Portal>
+            </SubframeCore.DropdownMenu.Root>
+            <SubframeCore.DropdownMenu.Root>
+              <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                <Button
+                  variant="neutral-tertiary"
+                  icon={<FeatherClock />}
+                  iconRight={<FeatherChevronDown />}
+                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                >
+                  Due Date
+                </Button>
+              </SubframeCore.DropdownMenu.Trigger>
+              <SubframeCore.DropdownMenu.Portal>
+                <SubframeCore.DropdownMenu.Content
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}
+                  className="w-auto p-0"
+                >
+                  <div className="p-3 bg-white rounded-lg shadow-lg border">
+                    <Calendar
+                      mode="range"
+                      selected={selectedDateRange}
+                      onSelect={(range: any) => {
+                        if (range) {
+                          setSelectedDateRange({
+                            from: range.from,
+                            to: range.to
+                          });
+                          console.log('Selected date range:', range);
+                        }
+                      }}
+                    />
+                  </div>
+                </SubframeCore.DropdownMenu.Content>
+              </SubframeCore.DropdownMenu.Portal>
+            </SubframeCore.DropdownMenu.Root>
+            <SubframeCore.DropdownMenu.Root>
+              <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                <Button
+                  variant="neutral-tertiary"
+                  icon={<FeatherArrowDownUp />}
+                  iconRight={<FeatherChevronDown />}
+                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                >
+                  Sort
+                </Button>
+              </SubframeCore.DropdownMenu.Trigger>
+              <SubframeCore.DropdownMenu.Portal>
+                <SubframeCore.DropdownMenu.Content
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}
+                  asChild={true}
+                >
+                  <DropdownMenu>
+                    <DropdownMenu.DropdownItem icon={<FeatherType />}>
+                      Title A-Z
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<FeatherType />}>
+                      Title Z-A
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownDivider />
+                    <DropdownMenu.DropdownItem icon={<FeatherCalendar />}>
+                      Due Date (Earliest)
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<FeatherCalendar />}>
+                      Due Date (Latest)
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownDivider />
+                    <DropdownMenu.DropdownItem icon={<FeatherArrowUp />}>
+                      Progress (Low to High)
+                    </DropdownMenu.DropdownItem>
+                    <DropdownMenu.DropdownItem icon={<FeatherArrowDown />}>
+                      Progress (High to Low)
+                    </DropdownMenu.DropdownItem>
+                  </DropdownMenu>
+                </SubframeCore.DropdownMenu.Content>
+              </SubframeCore.DropdownMenu.Portal>
+            </SubframeCore.DropdownMenu.Root>
+          </div>
         </div>
       </div>
-      <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-2 px-6 py-4 overflow-auto">
+      <div className="flex w-full flex-col items-start gap-2 px-6 py-4 overflow-auto">
         <Table
           header={
             <Table.HeaderRow>
@@ -255,7 +348,7 @@ function TranslatorWorkspace({ onDocumentSelect }: TranslatorWorkspaceProps) {
           </Table.Row>
           <Table.Row 
             className="cursor-pointer hover:bg-neutral-50 transition-colors"
-            onClick={() => onDocumentSelect?.({ name: 'User Interface Strings', language: 'Tshivenda', progress: 0 })}
+            onClick={() => onDocumentSelect?.({ name: 'User Interface Strings', language: 'isiZulu', progress: 0 })}
           >
             <Table.Cell>
               <div className="flex items-center justify-center gap-4">
@@ -272,7 +365,7 @@ function TranslatorWorkspace({ onDocumentSelect }: TranslatorWorkspaceProps) {
               <div className="flex items-center gap-2">
                 <Badge>EN</Badge>
                 <FeatherArrowRight className="text-body font-body text-neutral-400" />
-                <Badge variant="warning">TV</Badge>
+                <Badge variant="warning">ZU</Badge>
               </div>
             </Table.Cell>
             <Table.Cell>
@@ -328,7 +421,7 @@ function TranslatorWorkspace({ onDocumentSelect }: TranslatorWorkspaceProps) {
           </Table.Row>
           <Table.Row 
             className="cursor-pointer hover:bg-neutral-50 transition-colors"
-            onClick={() => onDocumentSelect?.({ name: 'Marketing Materials', language: 'Tshivenda', progress: 100 })}
+            onClick={() => onDocumentSelect?.({ name: 'Marketing Materials', language: 'Afrikaans', progress: 100 })}
           >
             <Table.Cell>
               <div className="flex items-center justify-center gap-4">
@@ -345,7 +438,7 @@ function TranslatorWorkspace({ onDocumentSelect }: TranslatorWorkspaceProps) {
               <div className="flex items-center gap-2">
                 <Badge>EN</Badge>
                 <FeatherArrowRight className="text-body font-body text-neutral-400" />
-                <Badge variant="warning">TV</Badge>
+                <Badge variant="success">AF</Badge>
               </div>
             </Table.Cell>
             <Table.Cell>
@@ -359,6 +452,225 @@ function TranslatorWorkspace({ onDocumentSelect }: TranslatorWorkspaceProps) {
             <Table.Cell>
               <Avatar size="small" image="">
                 RK
+              </Avatar>
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex grow shrink-0 basis-0 items-center justify-end">
+                <SubframeCore.DropdownMenu.Root>
+                  <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                    <IconButton
+                      icon={<FeatherMoreHorizontal />}
+                      onClick={(
+                        event: React.MouseEvent<HTMLButtonElement>
+                      ) => {}}
+                    />
+                  </SubframeCore.DropdownMenu.Trigger>
+                  <SubframeCore.DropdownMenu.Portal>
+                    <SubframeCore.DropdownMenu.Content
+                      side="bottom"
+                      align="end"
+                      sideOffset={8}
+                      asChild={true}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenu.DropdownItem icon={<FeatherEdit2 />}>
+                          Edit
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherUser />}>
+                          Assign
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherClock />}>
+                          Set Due Date
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherTrash />}>
+                          Delete
+                        </DropdownMenu.DropdownItem>
+                      </DropdownMenu>
+                    </SubframeCore.DropdownMenu.Content>
+                  </SubframeCore.DropdownMenu.Portal>
+                </SubframeCore.DropdownMenu.Root>
+              </div>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row 
+            className="cursor-pointer hover:bg-neutral-50 transition-colors"
+            onClick={() => onDocumentSelect?.({ name: 'Legal Terms & Conditions', language: 'isiZulu', progress: 45 })}
+          >
+            <Table.Cell>
+              <div className="flex items-center justify-center gap-4">
+                <img
+                  className="h-8 w-8 flex-none rounded-md object-cover"
+                  src="https://res.cloudinary.com/subframe/image/upload/v1723780741/uploads/302/iocrneldnziecxz0a86f.png"
+                />
+                <span className="whitespace-nowrap text-body-bold font-body-bold text-neutral-700">
+                  Legal Terms & Conditions
+                </span>
+              </div>
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex items-center gap-2">
+                <Badge>EN</Badge>
+                <FeatherArrowRight className="text-body font-body text-neutral-400" />
+                <Badge variant="warning">ZU</Badge>
+              </div>
+            </Table.Cell>
+            <Table.Cell>
+              <Progress value={45} />
+            </Table.Cell>
+            <Table.Cell>
+              <span className="whitespace-nowrap text-body font-body text-neutral-500">
+                Apr 10, 2024
+              </span>
+            </Table.Cell>
+            <Table.Cell>
+              <Avatar size="small" image="">
+                TM
+              </Avatar>
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex grow shrink-0 basis-0 items-center justify-end">
+                <SubframeCore.DropdownMenu.Root>
+                  <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                    <IconButton
+                      icon={<FeatherMoreHorizontal />}
+                      onClick={(
+                        event: React.MouseEvent<HTMLButtonElement>
+                      ) => {}}
+                    />
+                  </SubframeCore.DropdownMenu.Trigger>
+                  <SubframeCore.DropdownMenu.Portal>
+                    <SubframeCore.DropdownMenu.Content
+                      side="bottom"
+                      align="end"
+                      sideOffset={8}
+                      asChild={true}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenu.DropdownItem icon={<FeatherEdit2 />}>
+                          Edit
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherUser />}>
+                          Assign
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherClock />}>
+                          Set Due Date
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherTrash />}>
+                          Delete
+                        </DropdownMenu.DropdownItem>
+                      </DropdownMenu>
+                    </SubframeCore.DropdownMenu.Content>
+                  </SubframeCore.DropdownMenu.Portal>
+                </SubframeCore.DropdownMenu.Root>
+              </div>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row 
+            className="cursor-pointer hover:bg-neutral-50 transition-colors"
+            onClick={() => onDocumentSelect?.({ name: 'Mobile App Content', language: 'Tshivenda', progress: 30 })}
+          >
+            <Table.Cell>
+              <div className="flex items-center justify-center gap-4">
+                <img
+                  className="h-8 w-8 flex-none rounded-md object-cover"
+                  src="https://res.cloudinary.com/subframe/image/upload/v1723780751/uploads/302/cbaa1tfstfnmksus95et.png"
+                />
+                <span className="whitespace-nowrap text-body-bold font-body-bold text-neutral-700">
+                  Mobile App Content
+                </span>
+              </div>
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex items-center gap-2">
+                <Badge>EN</Badge>
+                <FeatherArrowRight className="text-body font-body text-neutral-400" />
+                <Badge variant="warning">TV</Badge>
+              </div>
+            </Table.Cell>
+            <Table.Cell>
+              <Progress value={30} />
+            </Table.Cell>
+            <Table.Cell>
+              <span className="whitespace-nowrap text-body font-body text-neutral-500">
+                Apr 25, 2024
+              </span>
+            </Table.Cell>
+            <Table.Cell>
+              <Avatar size="small" image="">
+                SK
+              </Avatar>
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex grow shrink-0 basis-0 items-center justify-end">
+                <SubframeCore.DropdownMenu.Root>
+                  <SubframeCore.DropdownMenu.Trigger asChild={true}>
+                    <IconButton
+                      icon={<FeatherMoreHorizontal />}
+                      onClick={(
+                        event: React.MouseEvent<HTMLButtonElement>
+                      ) => {}}
+                    />
+                  </SubframeCore.DropdownMenu.Trigger>
+                  <SubframeCore.DropdownMenu.Portal>
+                    <SubframeCore.DropdownMenu.Content
+                      side="bottom"
+                      align="end"
+                      sideOffset={8}
+                      asChild={true}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenu.DropdownItem icon={<FeatherEdit2 />}>
+                          Edit
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherUser />}>
+                          Assign
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherClock />}>
+                          Set Due Date
+                        </DropdownMenu.DropdownItem>
+                        <DropdownMenu.DropdownItem icon={<FeatherTrash />}>
+                          Delete
+                        </DropdownMenu.DropdownItem>
+                      </DropdownMenu>
+                    </SubframeCore.DropdownMenu.Content>
+                  </SubframeCore.DropdownMenu.Portal>
+                </SubframeCore.DropdownMenu.Root>
+              </div>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row 
+            className="cursor-pointer hover:bg-neutral-50 transition-colors"
+            onClick={() => onDocumentSelect?.({ name: 'Website Footer Content', language: 'Tshivenda', progress: 85 })}
+          >
+            <Table.Cell>
+              <div className="flex items-center justify-center gap-4">
+                <img
+                  className="h-8 w-8 flex-none rounded-md object-cover"
+                  src="https://res.cloudinary.com/subframe/image/upload/v1723780886/uploads/302/qw2wfjf4ptgiqbgi1jkf.png"
+                />
+                <span className="whitespace-nowrap text-body-bold font-body-bold text-neutral-700">
+                  Website Footer Content
+                </span>
+              </div>
+            </Table.Cell>
+            <Table.Cell>
+              <div className="flex items-center gap-2">
+                <Badge>EN</Badge>
+                <FeatherArrowRight className="text-body font-body text-neutral-400" />
+                <Badge variant="warning">TV</Badge>
+              </div>
+            </Table.Cell>
+            <Table.Cell>
+              <Progress value={85} />
+            </Table.Cell>
+            <Table.Cell>
+              <span className="whitespace-nowrap text-body font-body text-neutral-500">
+                May 5, 2024
+              </span>
+            </Table.Cell>
+            <Table.Cell>
+              <Avatar size="small" image="">
+                LN
               </Avatar>
             </Table.Cell>
             <Table.Cell>

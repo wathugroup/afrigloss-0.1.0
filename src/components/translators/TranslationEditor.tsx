@@ -5,14 +5,28 @@ import { Badge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
 import { TextArea } from "@/ui/components/TextArea";
 
-function TranslationEditor() {
+interface TranslationEditorProps {
+  onBack?: () => void;
+}
+
+function TranslationEditor({ onBack }: TranslationEditorProps) {
   return (
-    <div className="container max-w-none flex h-full w-full flex-col items-start rounded-md bg-neutral-100 py-6">
-      <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-6 px-12 py-12">
+    <div className="max-w-none flex h-full w-full flex-col items-start rounded-md bg-neutral-100">
+      <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-6 p-6">
         <div className="flex w-full items-center justify-between">
-          <span className="text-heading-2 font-heading-2 text-default-font">
-            Project: Tshivenda Translation
-          </span>
+          <div className="flex items-center gap-2">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="text-sm text-gray-600 hover:text-gray-900 mr-2"
+              >
+                ← Back
+              </button>
+            )}
+            <span className="text-heading-2 font-heading-2 text-default-font">
+              Project: Tshivenda Translation
+            </span>
+          </div>
           <Badge>Tshivenda</Badge>
         </div>
         <div className="flex w-full grow shrink-0 basis-0 flex-col items-start gap-6">
